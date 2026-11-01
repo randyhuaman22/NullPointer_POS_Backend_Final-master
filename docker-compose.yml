@@ -1,0 +1,316 @@
+name: nullpointer_pos_backend_inicio_1click_postman_4niveles
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${USUARIO_BASE_DATOS:-nullpointer}
+      POSTGRES_PASSWORD: ${CLAVE_BASE_DATOS:-nullpointer_local_2026}
+      POSTGRES_DB: postgres
+      TZ: America/Lima
+    ports:
+      - "5432:5432"
+    volumes:
+      - nullpointer_pgdata:/var/lib/postgresql/data
+      - ./base-de-datos/crear-bases-datos.sh:/docker-entrypoint-initdb.d/01-crear-bases-datos.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: ${USUARIO_RABBITMQ:-nullpointer}
+      RABBITMQ_DEFAULT_PASS: ${CLAVE_RABBITMQ:-nullpointer_rabbit_local_2026}
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - nullpointer_rabbitdata:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  servidor-descubrimiento:
+    image: servidor-descubrimiento:local
+    container_name: servidor-descubrimiento
+    build:
+      context: .
+      dockerfile: infrastructure/eureka-server/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8761:8761"
+    environment:
+      PUERTO_SERVIDOR: 8761
+      EUREKA_HOSTNAME: servidor-descubrimiento
+
+  servidor-configuracion:
+    image: servidor-configuracion:local
+    container_name: servidor-configuracion
+    build:
+      context: .
+      dockerfile: infrastructure/config-server/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8888:8888"
+    environment:
+      PUERTO_SERVIDOR: 8888
+      SPRING_PROFILES_ACTIVE: native
+      EUREKA_DEFAULT_ZONE: http://servidor-descubrimiento:8761/eureka/
+    depends_on:
+      - servidor-descubrimiento
+
+  servicio-autenticacion:
+    image: servicio-autenticacion:local
+    container_name: servicio-autenticacion
+    build:
+      context: .
+      dockerfile: microservice/authentication-service/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      PUERTO_SERVIDOR: 8081
+      CONFIG_SERVER_URL: http://servidor-configuracion:8888
+      EUREKA_DEFAULT_ZONE: http://servidor-descubrimiento:8761/eureka/
+      URL_BASE_DATOS: jdbc:postgresql://postgres:5432/bd_autenticacion
+      USUARIO_BASE_DATOS: ${USUARIO_BASE_DATOS:-nullpointer}
+      CLAVE_BASE_DATOS: ${CLAVE_BASE_DATOS:-nullpointer_local_2026}
+      MAX_CONEXIONES_BD: ${MAX_CONEXIONES_BD:-10}
+      MIN_CONEXIONES_BD: ${MIN_CONEXIONES_BD:-2}
+      SECRETO_JWT: ${SECRETO_JWT:-NullPointerPOS-Local-Secret-For-Demo-Only-2026!ChangeBeforeProduction}
+      VIGENCIA_JWT_MINUTOS: ${VIGENCIA_JWT_MINUTOS:-480}
+      ORIGENES_CORS_PERMITIDOS: ${ORIGENES_CORS_PERMITIDOS:-*}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      servidor-descubrimiento:
+        condition: service_started
+      servidor-configuracion:
+        condition: service_started
+
+  servicio-productos:
+    image: servicio-productos:local
+    container_name: servicio-productos
+    build:
+      context: .
+      dockerfile: microservice/products-service/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8084:8084"
+    environment:
+      PUERTO_SERVIDOR: 8084
+      CONFIG_SERVER_URL: http://servidor-configuracion:8888
+      EUREKA_DEFAULT_ZONE: http://servidor-descubrimiento:8761/eureka/
+      URL_BASE_DATOS: jdbc:postgresql://postgres:5432/bd_menu
+      USUARIO_BASE_DATOS: ${USUARIO_BASE_DATOS:-nullpointer}
+      CLAVE_BASE_DATOS: ${CLAVE_BASE_DATOS:-nullpointer_local_2026}
+      MAX_CONEXIONES_BD: ${MAX_CONEXIONES_BD:-10}
+      MIN_CONEXIONES_BD: ${MIN_CONEXIONES_BD:-2}
+      SECRETO_JWT: ${SECRETO_JWT:-NullPointerPOS-Local-Secret-For-Demo-Only-2026!ChangeBeforeProduction}
+      VIGENCIA_JWT_MINUTOS: ${VIGENCIA_JWT_MINUTOS:-480}
+      ANFITRION_RABBITMQ: rabbitmq
+      PUERTO_RABBITMQ: 5672
+      USUARIO_RABBITMQ: ${USUARIO_RABBITMQ:-nullpointer}
+      CLAVE_RABBITMQ: ${CLAVE_RABBITMQ:-nullpointer_rabbit_local_2026}
+      ORIGENES_CORS_PERMITIDOS: ${ORIGENES_CORS_PERMITIDOS:-*}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      servidor-descubrimiento:
+        condition: service_started
+      servidor-configuracion:
+        condition: service_started
+
+  servicio-pedidos:
+    image: servicio-pedidos:local
+    container_name: servicio-pedidos
+    build:
+      context: .
+      dockerfile: microservice/orders-service/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8082:8082"
+    environment:
+      PUERTO_SERVIDOR: 8082
+      CONFIG_SERVER_URL: http://servidor-configuracion:8888
+      EUREKA_DEFAULT_ZONE: http://servidor-descubrimiento:8761/eureka/
+      PRODUCTOS_SERVICE_URL: http://servicio-productos:8084
+      URL_BASE_DATOS: jdbc:postgresql://postgres:5432/bd_comandas
+      USUARIO_BASE_DATOS: ${USUARIO_BASE_DATOS:-nullpointer}
+      CLAVE_BASE_DATOS: ${CLAVE_BASE_DATOS:-nullpointer_local_2026}
+      MAX_CONEXIONES_BD: ${MAX_CONEXIONES_BD:-10}
+      MIN_CONEXIONES_BD: ${MIN_CONEXIONES_BD:-2}
+      SECRETO_JWT: ${SECRETO_JWT:-NullPointerPOS-Local-Secret-For-Demo-Only-2026!ChangeBeforeProduction}
+      VIGENCIA_JWT_MINUTOS: ${VIGENCIA_JWT_MINUTOS:-480}
+      ANFITRION_RABBITMQ: rabbitmq
+      PUERTO_RABBITMQ: 5672
+      USUARIO_RABBITMQ: ${USUARIO_RABBITMQ:-nullpointer}
+      CLAVE_RABBITMQ: ${CLAVE_RABBITMQ:-nullpointer_rabbit_local_2026}
+      ORIGENES_CORS_PERMITIDOS: ${ORIGENES_CORS_PERMITIDOS:-*}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      servicio-productos:
+        condition: service_started
+      servidor-descubrimiento:
+        condition: service_started
+      servidor-configuracion:
+        condition: service_started
+
+  servicio-cocina:
+    image: servicio-cocina:local
+    container_name: servicio-cocina
+    build:
+      context: .
+      dockerfile: microservice/kitchen-service/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8083:8083"
+    environment:
+      PUERTO_SERVIDOR: 8083
+      CONFIG_SERVER_URL: http://servidor-configuracion:8888
+      EUREKA_DEFAULT_ZONE: http://servidor-descubrimiento:8761/eureka/
+      ANFITRION_RABBITMQ: rabbitmq
+      PUERTO_RABBITMQ: 5672
+      USUARIO_RABBITMQ: ${USUARIO_RABBITMQ:-nullpointer}
+      CLAVE_RABBITMQ: ${CLAVE_RABBITMQ:-nullpointer_rabbit_local_2026}
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      servidor-descubrimiento:
+        condition: service_started
+      servidor-configuracion:
+        condition: service_started
+
+  servicio-caja:
+    image: servicio-caja:local
+    container_name: servicio-caja
+    build:
+      context: .
+      dockerfile: microservice/cashier-service/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8085:8085"
+    environment:
+      PUERTO_SERVIDOR: 8085
+      CONFIG_SERVER_URL: http://servidor-configuracion:8888
+      EUREKA_DEFAULT_ZONE: http://servidor-descubrimiento:8761/eureka/
+      URL_BASE_DATOS: jdbc:postgresql://postgres:5432/bd_caja
+      USUARIO_BASE_DATOS: ${USUARIO_BASE_DATOS:-nullpointer}
+      CLAVE_BASE_DATOS: ${CLAVE_BASE_DATOS:-nullpointer_local_2026}
+      SECRETO_JWT: ${SECRETO_JWT:-NullPointerPOS-Local-Secret-For-Demo-Only-2026!ChangeBeforeProduction}
+      ANFITRION_RABBITMQ: rabbitmq
+      PUERTO_RABBITMQ: 5672
+      USUARIO_RABBITMQ: ${USUARIO_RABBITMQ:-nullpointer}
+      CLAVE_RABBITMQ: ${CLAVE_RABBITMQ:-nullpointer_rabbit_local_2026}
+      ORDERS_SERVICE_URL: http://servicio-pedidos:8082
+      SUNAT_CERTIFICADO_RUTA: ${SUNAT_CERTIFICADO_RUTA:-}
+      SUNAT_CLAVE_CERTIFICADO: ${SUNAT_CLAVE_CERTIFICADO:-}
+      SUNAT_CERTIFICADO_ALIAS: ${SUNAT_CERTIFICADO_ALIAS:-}
+      SUNAT_RUC_EMISOR: ${SUNAT_RUC_EMISOR:-20000000001}
+      SUNAT_RAZON_SOCIAL: ${SUNAT_RAZON_SOCIAL:-POLLERIA Y PARRILLAS WENDY'S FOOD S.A.C.}
+      GREENAPI_MEDIA_URL: ${GREENAPI_MEDIA_URL:-https://media.green-api.com}
+      GREENAPI_ID_INSTANCE: ${GREENAPI_ID_INSTANCE:-}
+      GREENAPI_API_TOKEN: ${GREENAPI_API_TOKEN:-}
+      CONSULTA_DOC_PROVEEDOR: ${CONSULTA_DOC_PROVEEDOR:-APISPERU}
+      CONSULTA_DOC_URL: ${CONSULTA_DOC_URL:-}
+      CONSULTA_DOC_TOKEN: ${CONSULTA_DOC_TOKEN:-}
+      WHATSAPP_API_URL: ${WHATSAPP_API_URL:-}
+      WHATSAPP_ACCESS_TOKEN: ${WHATSAPP_ACCESS_TOKEN:-}
+      ORIGENES_CORS_PERMITIDOS: ${ORIGENES_CORS_PERMITIDOS:-*}
+    volumes:
+      - ./certificados:/certificados:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      servicio-pedidos:
+        condition: service_started
+      servidor-descubrimiento:
+        condition: service_started
+      servidor-configuracion:
+        condition: service_started
+
+  servicio-inventario:
+    image: servicio-inventario:local
+    container_name: servicio-inventario
+    build:
+      context: .
+      dockerfile: microservice/inventory-service/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8086:8086"
+    environment:
+      PUERTO_SERVIDOR: 8086
+      CONFIG_SERVER_URL: http://servidor-configuracion:8888
+      EUREKA_DEFAULT_ZONE: http://servidor-descubrimiento:8761/eureka/
+      URL_BASE_DATOS: jdbc:postgresql://postgres:5432/bd_inventario
+      USUARIO_BASE_DATOS: ${USUARIO_BASE_DATOS:-nullpointer}
+      CLAVE_BASE_DATOS: ${CLAVE_BASE_DATOS:-nullpointer_local_2026}
+      SECRETO_JWT: ${SECRETO_JWT:-NullPointerPOS-Local-Secret-For-Demo-Only-2026!ChangeBeforeProduction}
+      ANFITRION_RABBITMQ: rabbitmq
+      PUERTO_RABBITMQ: 5672
+      USUARIO_RABBITMQ: ${USUARIO_RABBITMQ:-nullpointer}
+      CLAVE_RABBITMQ: ${CLAVE_RABBITMQ:-nullpointer_rabbit_local_2026}
+      ORIGENES_CORS_PERMITIDOS: ${ORIGENES_CORS_PERMITIDOS:-*}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      servicio-pedidos:
+        condition: service_started
+      servidor-descubrimiento:
+        condition: service_started
+      servidor-configuracion:
+        condition: service_started
+
+  puerta-enlace-api:
+    image: puerta-enlace-api:local
+    container_name: puerta-enlace-api
+    build:
+      context: .
+      dockerfile: infrastructure/api-gateway/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      PUERTO_SERVIDOR: 8080
+      CONFIG_SERVER_URL: http://servidor-configuracion:8888
+      EUREKA_DEFAULT_ZONE: http://servidor-descubrimiento:8761/eureka/
+      SECRETO_JWT: ${SECRETO_JWT:-NullPointerPOS-Local-Secret-For-Demo-Only-2026!ChangeBeforeProduction}
+      ORIGENES_CORS_PERMITIDOS: ${ORIGENES_CORS_PERMITIDOS:-*}
+    depends_on:
+      - servicio-autenticacion
+      - servicio-productos
+      - servicio-pedidos
+      - servicio-cocina
+      - servicio-caja
+      - servicio-inventario
+      - servidor-descubrimiento
+      - servidor-configuracion
+
+networks:
+  default:
+    name: nullpointer-pos-network
+    driver: bridge
+
+volumes:
+  nullpointer_pgdata:
+    name: nullpointer_pos_backend_inicio_1click_postman_4niveles_nullpointer_pgdata
+  nullpointer_rabbitdata:
+    name: nullpointer_pos_backend_inicio_1click_postman_4niveles_nullpointer_rabbitdata
