@@ -1,0 +1,29 @@
+server:
+  port: ${PUERTO_SERVIDOR:8083}
+spring:
+  application:
+    name: servicio-cocina
+  config:
+    import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}
+  cloud:
+    config:
+      fail-fast: false
+  rabbitmq:
+    host: ${ANFITRION_RABBITMQ:localhost}
+    port: ${PUERTO_RABBITMQ:5672}
+    username: ${USUARIO_RABBITMQ:guest}
+    password: ${CLAVE_RABBITMQ:guest}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_DEFAULT_ZONE:http://localhost:8761/eureka/}
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
