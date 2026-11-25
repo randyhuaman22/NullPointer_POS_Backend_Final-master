@@ -62,7 +62,7 @@ public class FiltroJwtPuertaEnlace implements GlobalFilter, Ordered {
             Claims datos = Jwts.parser().verifyWith(claveFirma).build().parseSignedClaims(token).getPayload();
             if (ruta.startsWith("/ws/cocina")) {
                 String rol = datos.get("rol", String.class);
-                if (!"COCINERO".equals(rol) && !"ADMINISTRADOR".equals(rol)) {
+                if (!java.util.List.of("COCINERO", "ADMINISTRADOR", "MOZO", "CAJERO").contains(rol)) {
                     return responder(intercambio, HttpStatus.FORBIDDEN,
                             "Solo el cocinero o el administrador puede abrir la pantalla de cocina.");
                 }
