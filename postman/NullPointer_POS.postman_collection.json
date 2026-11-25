@@ -1,0 +1,3429 @@
+{
+  "info": {
+    "name": "NullPointer POS",
+    "_postman_id": "cfe53ee4-fe20-4677-aecf-327705831245",
+    "description": "Colección organizada en cuatro niveles: NullPointer POS > rol/área > módulo > endpoints. Selecciona el entorno local o usa baseUrl=http://localhost:8080. Inicia sesión primero en la carpeta del rol que vas a probar; los tests guardan su token automáticamente. Las cuentas de demostración usan clave 1234. Los comprobantes PDF de ejemplo no tienen valor tributario.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "noauth"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "idPedido",
+      "value": "1"
+    },
+    {
+      "key": "idDetalle",
+      "value": "1"
+    },
+    {
+      "key": "tokenAdmin",
+      "value": ""
+    },
+    {
+      "key": "idCategoriaNueva",
+      "value": ""
+    },
+    {
+      "key": "idProductoNuevo",
+      "value": ""
+    },
+    {
+      "key": "idMesaNueva",
+      "value": ""
+    },
+    {
+      "key": "idInsumoNuevo",
+      "value": ""
+    },
+    {
+      "key": "idUsuarioEditar",
+      "value": ""
+    },
+    {
+      "key": "idOpcionGrande",
+      "value": ""
+    },
+    {
+      "key": "tokenMozo",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "tokenAdministrador",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "tokenCajero",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "tokenCocinero",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "idUsuarioAutenticado",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "codigoUsuarioPrueba",
+      "value": "MOZ_TEST_00000000",
+      "type": "string"
+    },
+    {
+      "key": "idUsuarioNuevo",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "idGrupoMesas",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "idMesaGrupo1",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "idMesaGrupo2",
+      "value": "2",
+      "type": "string"
+    },
+    {
+      "key": "categoriaPruebaNombre",
+      "value": "Categoria de prueba",
+      "type": "string"
+    },
+    {
+      "key": "categoriaPruebaNombreEditada",
+      "value": "Categoria editada",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Administrador",
+      "description": "Operaciones administrativas. Inicia sesión con ADM001 y usa tokenAdmin para los endpoints protegidos.",
+      "item": [
+        {
+          "name": "Acceso",
+          "description": "Login de demostración. Después de enviar el login, el test guarda automáticamente el token correspondiente.",
+          "item": [
+            {
+              "name": "Iniciar sesión como administrador (ADM001)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/autenticacion/iniciar-sesion",
+                "description": "Credenciales locales de demostración: ADM001 / 1234. Guarda tokenAdmin.",
+                "auth": {
+                  "type": "noauth"
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"codigoTrabajador\": \"ADM001\",\n  \"clave\": \"1234\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "if (pm.response.code === 200) {",
+                      "  const data = pm.response.json();",
+                      "  if (data.token) { pm.collectionVariables.set(\"tokenAdmin\", data.token); pm.collectionVariables.set(\"tokenAdministrador\", data.token); }",
+                      "  if (data.usuario && data.usuario.id) pm.collectionVariables.set(\"idUsuarioAutenticado\", String(data.usuario.id));",
+                      "}"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Usuarios",
+          "description": "Edición y consulta de auditoría de usuarios.",
+          "item": [
+            {
+              "name": "Crear usuario",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenAdmin}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "url": "{{baseUrl}}/api/v1/administracion/usuarios",
+                "description": "Crea un usuario de prueba. El código se genera en cada ejecución para evitar duplicados.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"codigoTrabajador\": \"{{codigoUsuarioPrueba}}\",\n  \"nombreCompleto\": \"Usuario de prueba POS\",\n  \"correo\": \"{{codigoUsuarioPrueba}}@example.test\",\n  \"clave\": \"1234\",\n  \"rol\": \"MOZO\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "const codigo = 'MOZ_TEST_' + Date.now().toString().slice(-8);",
+                      "pm.collectionVariables.set('codigoUsuarioPrueba', codigo);"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "if (pm.response.code === 201 || pm.response.code === 200) {",
+                      "  const data = pm.response.json();",
+                      "  if (data.idUsuario !== undefined) pm.collectionVariables.set('idUsuarioNuevo', String(data.idUsuario));",
+                      "  pm.test('Usuario creado', function () { pm.expect(data.idUsuario).to.exist; });",
+                      "} else { pm.test('Crear usuario respondió 201/200', function () { pm.expect(pm.response.code).to.be.oneOf([200,201]); }); }"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Listar usuarios",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenAdmin}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "url": "{{baseUrl}}/api/v1/administracion/usuarios"
+              }
+            },
+            {
+              "name": "Consultar usuario por ID",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenAdmin}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "url": "{{baseUrl}}/api/v1/administracion/usuarios/{{idUsuarioNuevo}}"
+              }
+            },
+            {
+              "name": "Editar usuario creado",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/administracion/usuarios/{{idUsuarioNuevo}}",
+                "description": "La nuevaClave se puede dejar en null para conservar la clave actual.",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenAdmin}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nombreCompleto\": \"Trabajador actualizado\",\n  \"correo\": \"{{codigoUsuarioPrueba}}.editado@example.test\",\n  \"rol\": \"MOZO\",\n  \"nuevaClave\": \"4321\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Dar de baja usuario (DELETE lógico)",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenAdmin}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "url": "{{baseUrl}}/api/v1/administracion/usuarios/{{idUsuarioNuevo}}",
+                "description": "Desactiva al trabajador sin borrar su historial ni sus ventas."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('La baja lógica no elimina el historial', function () { pm.expect(pm.response.code).to.be.oneOf([200,204]); });"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Reactivar usuario",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenAdmin}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "url": "{{baseUrl}}/api/v1/administracion/usuarios/{{idUsuarioNuevo}}/activar"
+              }
+            },
+            {
+              "name": "Consultar auditoría de usuarios",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/administracion/usuarios/auditoria",
+                "description": "Historial administrativo de creación, edición, activación y desactivación.",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenAdmin}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Categorías",
+          "description": "Gestión administrativa de categorías de las cuatro áreas.",
+          "item": [
+            {
+              "name": "Listar categorías",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/menu/administracion/categorias?incluirInactivas=true",
+                "description": "Consulta para el panel de administración.",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenAdmin}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Crear categoría de prueba",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/menu/administracion/categorias",
+                "description": "El nombre debe ser único dentro del área HELADERIA; el mismo nombre puede usarse en otra área.",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenAdmin}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nombre\": \"{{categoriaPruebaNombre}}\",\n  \"descripcion\": \"Categoría de validación; desactivar después.\",\n  \"areaNegocio\": \"HELADERIA\",\n  \"idCategoriaPadre\": null,\n  \"ordenVisualizacion\": 99\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "const sufijo = Date.now().toString().slice(-8);",
+                      "pm.collectionVariables.set('categoriaPruebaNombre', 'Categoria de prueba ' + sufijo);",
+                      "pm.collectionVariables.set('categoriaPruebaNombreEditada', 'Categoria editada ' + sufijo);"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "if (pm.response.code === 201 || pm.response.code === 200) {",
+                      "  const data = pm.response.json();",
+                      "  if (data.idCategoria) pm.collectionVariables.set(\"idCategoriaNueva\", String(data.idCategoria));",
+                      "}"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Consultar categoría por ID",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenAdmin}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "url": "{{baseUrl}}/api/v1/menu/administracion/categorias/{{idCategoriaNueva}}"
+              }
+            },
+            {
+              "name": "Editar categoría",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenAdmin}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "url": "{{baseUrl}}/api/v1/menu/administracion/categorias/{{idCategoriaNueva}}",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nombre\": \"{{categoriaPruebaNombreEditada}}\",\n  \"descripcion\": \"Categoría modificada desde Postman.\",\n  \"areaNegocio\": \"HELADERIA\",\n  \"idCategoriaPadre\": null,\n  \"ordenVisualizacion\": 99\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Desactivar categoría (DELETE lógico)",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenAdmin}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "url": "{{baseUrl}}/api/v1/menu/administracion/categorias/{{idCategoriaNueva}}",
+                "description": "La API impide desactivar una categoría que todavía tenga productos o subcategorías activas."
+              }
+            },
+            {
+              "name": "Restaurar categoría",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenAdmin}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "url": "{{baseUrl}}/api/v1/menu/administracion/categorias/{{idCategoriaNueva}}/restaurar"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Productos",
+          "description": "Gestión administrativa del catálogo: crear, editar, desactivar y restaurar productos.",
+          "item": [
+            {
+              "name": "Listar productos administrativos",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/menu/administracion/productos?area=POLLERIA&incluirInactivos=true",
+                "description": "Incluye disponibilidad, estado activo, categoría, estación y precio.",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenAdmin}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Consultar producto por ID",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenAdmin}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "url": "{{baseUrl}}/api/v1/menu/administracion/productos/{{idProductoNuevo}}"
+              }
+            },
+            {
+              "name": "Crear producto de prueba",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/menu/administracion/productos",
+                "description": "Reemplaza idCategoria e idEstacionCocina por IDs existentes y usa un código que no exista.",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenAdmin}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"codigoProducto\": \"PRUEBA-POS-001\",\n  \"nombre\": \"Producto de prueba POS\",\n  \"descripcion\": \"No es parte del menú real. Desactivar después de probar.\",\n  \"urlImagen\": null,\n  \"precioUnitario\": 9.9,\n  \"idCategoria\": 1,\n  \"idEstacionCocina\": 1,\n  \"tiempoPreparacionMinutos\": 5,\n  \"disponible\": false,\n  \"destacado\": false,\n  \"ordenVisualizacion\": 999\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "if (pm.response.code === 201 || pm.response.code === 200) {",
+                      "  const data = pm.response.json();",
+                      "  if (data.idProducto) pm.collectionVariables.set(\"idProductoNuevo\", String(data.idProducto));",
+                      "}"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Editar producto (reemplaza datos)",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/menu/administracion/productos/{{idProductoNuevo}}",
+                "description": "Define idProductoNuevo con el ID devuelto por la creación; el PUT requiere todos los datos obligatorios.",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenAdmin}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"codigoProducto\": \"PRUEBA-POS-001\",\n  \"nombre\": \"Producto POS editado\",\n  \"descripcion\": \"Prueba de modificación.\",\n  \"urlImagen\": null,\n  \"precioUnitario\": 10.5,\n  \"idCategoria\": 1,\n  \"idEstacionCocina\": 1,\n  \"tiempoPreparacionMinutos\": 7,\n  \"disponible\": false,\n  \"destacado\": true,\n  \"ordenVisualizacion\": 999\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Desactivar producto",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/menu/administracion/productos/{{idProductoNuevo}}",
+                "description": "Baja lógica: conserva historial y pedidos existentes.",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenAdmin}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Restaurar producto",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/menu/administracion/productos/{{idProductoNuevo}}/restaurar",
+                "description": "Restaura el producto inactivo; queda no disponible hasta que se active.",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenAdmin}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Opciones de productos",
+          "description": "Configura grupos de opciones de tamaño, sabor y agregados para un producto.",
+          "item": [
+            {
+              "name": "Configurar tamaños, sabores y extras de producto",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/menu/administracion/productos/{{idProductoNuevo}}/opciones",
+                "description": "Ejemplo para un producto de heladería/juguería. Reemplaza {{idProductoNuevo}} por un producto activo. La configuración anterior se reemplaza por completo.",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenAdmin}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"grupos\": [\n    {\n      \"nombre\": \"Tamaño\",\n      \"obligatorio\": true,\n      \"seleccionMinima\": 1,\n      \"seleccionMaxima\": 1,\n      \"ordenVisualizacion\": 1,\n      \"opciones\": [\n        {\n          \"nombre\": \"Mediano\",\n          \"precioAdicional\": 0.0,\n          \"ordenVisualizacion\": 1\n        },\n        {\n          \"nombre\": \"Grande\",\n          \"precioAdicional\": 3.0,\n          \"ordenVisualizacion\": 2\n        }\n      ]\n    },\n    {\n      \"nombre\": \"Agregados\",\n      \"obligatorio\": false,\n      \"seleccionMinima\": 0,\n      \"seleccionMaxima\": 2,\n      \"ordenVisualizacion\": 2,\n      \"opciones\": [\n        {\n          \"nombre\": \"Crema\",\n          \"precioAdicional\": 1.5,\n          \"ordenVisualizacion\": 1\n        },\n        {\n          \"nombre\": \"Topping de chocolate\",\n          \"precioAdicional\": 2.0,\n          \"ordenVisualizacion\": 2\n        }\n      ]\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Estaciones de preparación",
+          "description": "Consulta las estaciones usadas para enrutar la preparación.",
+          "item": [
+            {
+              "name": "Listar estaciones de preparación",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/menu/administracion/estaciones",
+                "description": "Estaciones configurables que se asignan a productos.",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenAdmin}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Mesas",
+          "description": "Alta, edición y estado de las mesas; no deshabilitar mesas con pedidos abiertos.",
+          "item": [
+            {
+              "name": "Listar todas las mesas",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/mesas/administracion?incluirInactivas=true",
+                "description": "Lista mesas activas e inactivas.",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenAdmin}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Crear mesa",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/mesas/administracion",
+                "description": "Código de ejemplo; debe ser único.",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenAdmin}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"codigoMesa\": \"T-99\",\n  \"nombreArea\": \"TERRAZA\",\n  \"capacidad\": 4\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "if (pm.response.code === 201 || pm.response.code === 200) {",
+                      "  const data = pm.response.json();",
+                      "  if (data.idMesa !== undefined) pm.collectionVariables.set(\"idMesaNueva\", String(data.idMesa));",
+                      "}"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Editar mesa",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/mesas/administracion/{{idMesaNueva}}",
+                "description": "Requiere una mesa existente sin pedidos activos y que no esté fuera de servicio.",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenAdmin}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"codigoMesa\": \"T-99\",\n  \"nombreArea\": \"TERRAZA\",\n  \"capacidad\": 6\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Marcar mesa fuera de servicio",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/mesas/administracion/{{idMesaNueva}}/fuera-servicio",
+                "description": "Solo permite hacerlo si no hay pedidos activos.",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenAdmin}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Habilitar mesa",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/mesas/administracion/{{idMesaNueva}}/habilitar",
+                "description": "Devuelve la mesa al estado LIBRE si no tiene pedidos activos.",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenAdmin}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Inventario - Insumos",
+          "description": "Mantenimiento de insumos y ajustes del stock físico con trazabilidad.",
+          "item": [
+            {
+              "name": "Listar insumos",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/inventario/insumos",
+                "description": "Inventario actual.",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenAdmin}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Crear insumo",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/inventario/insumos",
+                "description": "Código de ejemplo, debe ser único.",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenAdmin}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"codigo\": \"INS-PRUEBA-01\",\n  \"nombre\": \"Insumo de prueba\",\n  \"unidad\": \"KG\",\n  \"stockInicial\": 2.0,\n  \"stockMinimo\": 0.5,\n  \"costoUnitario\": 4.5\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "if (pm.response.code === 201 || pm.response.code === 200) {",
+                      "  const data = pm.response.json();",
+                      "  if (data.idInsumo !== undefined) pm.collectionVariables.set(\"idInsumoNuevo\", String(data.idInsumo));",
+                      "}"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Editar insumo",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/inventario/insumos/{{idInsumoNuevo}}",
+                "description": "Solo administrador. No modifica stock actual.",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenAdmin}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"codigo\": \"INS-PRUEBA-01\",\n  \"nombre\": \"Insumo de prueba actualizado\",\n  \"unidad\": \"KG\",\n  \"stockMinimo\": 0.75,\n  \"costoUnitario\": 5.0\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Ajustar stock físico",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/inventario/insumos/{{idInsumoNuevo}}/ajustes",
+                "description": "Registra diferencia como movimiento AJUSTE.",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenAdmin}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nuevoStock\": 3.0,\n  \"motivo\": \"Conteo físico de prueba\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Inventario - Auditoría",
+          "description": "Historial de cambios de insumos.",
+          "item": [
+            {
+              "name": "Consultar auditoría de insumos",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/inventario/auditoria-insumos",
+                "description": "Solo administrador.",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenAdmin}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Inventario - Recetas",
+          "description": "Configuración de las cantidades de insumos utilizadas por los productos.",
+          "item": [
+            {
+              "name": "Configurar receta de insumo",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/inventario/recetas/1",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "inventario",
+                    "recetas",
+                    "1"
+                  ]
+                },
+                "description": "Ajustar idProducto/idInsumo existentes. La receta debe configurarse para que el evento pedido.pagado descuente stock.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "[\n  {\n    \"idInsumo\": 1,\n    \"cantidad\": 0.25\n  }\n]",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenAdmin}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Inventario - Compras y mermas",
+          "description": "Registro y consulta de compras y mermas.",
+          "item": [
+            {
+              "name": "Registrar compra",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/inventario/compras",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "inventario",
+                    "compras"
+                  ]
+                },
+                "description": "",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"proveedor\": \"Proveedor demo\",\n  \"documento\": \"FAC-001\",\n  \"observacion\": \"Compra de prueba\",\n  \"items\": [\n    {\n      \"idInsumo\": 1,\n      \"cantidad\": 5.0,\n      \"costoUnitario\": 12.5\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenAdmin}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Registrar merma",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/inventario/mermas",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "inventario",
+                    "mermas"
+                  ]
+                },
+                "description": "",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"idInsumo\": 1,\n  \"cantidad\": 0.5,\n  \"motivo\": \"Merma demo\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenAdmin}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Consultar compras",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/inventario/compras",
+                "description": "Historial resumido de compras registradas.",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenAdmin}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Inventario - Alertas y movimientos",
+          "description": "Alertas de mínimos, movimientos y faltantes por venta.",
+          "item": [
+            {
+              "name": "Consultar alertas de stock",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/inventario/alertas",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "inventario",
+                    "alertas"
+                  ]
+                },
+                "description": "",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenAdmin}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Consultar movimientos de inventario",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/inventario/movimientos",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "inventario",
+                    "movimientos"
+                  ]
+                },
+                "description": "",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenAdmin}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Consultar faltantes por venta",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/inventario/faltantes-venta",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "inventario",
+                    "faltantes-venta"
+                  ]
+                },
+                "description": "Consulta los faltantes registrados cuando una venta requiere más insumo que el stock disponible. Requiere token ALMACENERO o ADMINISTRADOR. La tabla aparece al aplicar la migración V2 del inventory-service.",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenAdmin}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reportes",
+          "description": "Reportes de ventas; requieren registros de prueba existentes.",
+          "item": [
+            {
+              "name": "Reporte de ventas por hora",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/reportes/ventas-por-hora",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "reportes",
+                    "ventas-por-hora"
+                  ]
+                },
+                "description": "",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenAdmin}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Reporte de productos más vendidos",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/reportes/platos-populares",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "reportes",
+                    "platos-populares"
+                  ]
+                },
+                "description": "",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenAdmin}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Exportar ventas a Excel",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/reportes/ventas/exportar.xlsx",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "reportes",
+                    "ventas",
+                    "exportar.xlsx"
+                  ]
+                },
+                "description": "",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenAdmin}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Auditoría",
+          "description": "Consultas de auditoría disponibles para administración.",
+          "item": [
+            {
+              "name": "Consultar auditoría de pedidos",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/auditoria/pedidos",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "auditoria",
+                    "pedidos"
+                  ]
+                },
+                "description": "",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenAdmin}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Consultar auditoría del catálogo",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/menu/administracion/auditoria?limite=100",
+                "description": "Registro de quién creó, modificó, desactivó y restauró categorías, productos y estaciones.",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenAdmin}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Cajero",
+      "description": "Turno de caja, pagos, clientes, comprobantes y mensajería. Inicia sesión con CAJ001 y usa tokenCajero.",
+      "item": [
+        {
+          "name": "Acceso",
+          "description": "Login de demostración. Después de enviar el login, el test guarda automáticamente el token correspondiente.",
+          "item": [
+            {
+              "name": "Iniciar sesión como cajero (CAJ001)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/autenticacion/iniciar-sesion",
+                "description": "Login local académico para el rol CAJERO. Guarda el token en la variable tokenCajero.",
+                "auth": {
+                  "type": "noauth"
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"codigoTrabajador\": \"CAJ001\",\n  \"clave\": \"1234\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "if (pm.response.code === 200) {",
+                      "  const data = pm.response.json();",
+                      "  if (data.token) pm.collectionVariables.set(\"tokenCajero\", data.token);",
+                      "  if (data.usuario && data.usuario.id) pm.collectionVariables.set(\"idUsuarioAutenticado\", String(data.usuario.id));",
+                      "}"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Turno de caja",
+          "description": "Apertura y cierre de turno. Abrir caja antes de realizar cobros.",
+          "item": [
+            {
+              "name": "Abrir turno de caja",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/caja/apertura",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "caja",
+                    "apertura"
+                  ]
+                },
+                "description": "Iniciar sesión con CAJ001 para esta solicitud.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"montoInicial\": 100.0\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenCajero}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Cerrar turno de caja",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/caja/cierre",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "caja",
+                    "cierre"
+                  ]
+                },
+                "description": "Iniciar sesión como cajero que abrió el turno.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"importeReal\": 100.0,\n  \"motivo\": \"Cierre de prueba\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenCajero}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cobros",
+          "description": "Ejemplos de cobro en efectivo, Yape/Plin y pago mixto. Primero crea el pedido y consulta su total.",
+          "item": [
+            {
+              "name": "Consultar resumen de pago",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/pedidos/{{idPedido}}/resumen-pago",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "pedidos",
+                    "{{idPedido}}",
+                    "resumen-pago"
+                  ]
+                },
+                "description": "Copiar idPedido válido; el cobro usa este resumen para validar el importe pendiente.",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenCajero}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Registrar cobro en efectivo",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/caja/cobrar",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "caja",
+                    "cobrar"
+                  ]
+                },
+                "description": "Debe usar un pedido válido no pagado y un monto recibido suficiente.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"idPedido\": 1,\n  \"importeRecibido\": 50.0,\n  \"idempotencia\": \"demo-efectivo-001\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenCajero}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Registrar cobro Yape/Plin",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/caja/cobrar-digital",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "caja",
+                    "cobrar-digital"
+                  ]
+                },
+                "description": "No consulta el banco: registra la referencia declarada y bloquea duplicados en BD.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"idPedido\": 1,\n  \"metodo\": \"YAPE\",\n  \"numeroOperacion\": \"DEMO-000001\",\n  \"ultimosCuatroDigitos\": \"1234\",\n  \"idempotencia\": \"demo-yape-001\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenCajero}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Registrar pago mixto",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/caja/cobrar-mixto",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "caja",
+                    "cobrar-mixto"
+                  ]
+                },
+                "description": "La suma de partes debe ser igual al total pendiente del pedido.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"idPedido\": 1,\n  \"idempotencia\": \"demo-mixto-001\",\n  \"partes\": [\n    {\n      \"metodo\": \"EFECTIVO\",\n      \"importe\": 10.0\n    },\n    {\n      \"metodo\": \"YAPE\",\n      \"importe\": 10.0,\n      \"numeroOperacion\": \"DEMO-MIX-001\",\n      \"ultimosCuatroDigitos\": \"1234\"\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenCajero}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Simular tarjeta bancaria (POS)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenCajero}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"numeroTarjeta\": \"4111 1111 1111 1111\",\n  \"mesVencimiento\": 12,\n  \"anioVencimiento\": 2028,\n  \"cvv\": \"123\",\n  \"titular\": \"JUAN PEREZ\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/caja/simulador-tarjeta",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "caja",
+                    "simulador-tarjeta"
+                  ]
+                },
+                "description": "Valida tarjeta con algoritmo Luhn, detecta marca (VISA/Mastercard) y devuelve código de autorización y número de voucher simulado."
+              }
+            },
+            {
+              "name": "Registrar cobro con Tarjeta",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenCajero}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"idPedido\": 1,\n  \"metodo\": \"TARJETA\",\n  \"numeroOperacion\": \"VOUCH-892144\",\n  \"ultimosCuatroDigitos\": \"1111\",\n  \"idempotencia\": \"demo-tarjeta-001\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/caja/cobrar-digital",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "caja",
+                    "cobrar-digital"
+                  ]
+                },
+                "description": "Registra cobro por tarjeta usando el voucher del POS o el código del simulador de tarjeta."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Clientes",
+          "description": "Registro y consulta de los datos de compradores de prueba.",
+          "item": [
+            {
+              "name": "Registrar cliente local",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/clientes",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "clientes"
+                  ]
+                },
+                "description": "",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"tipoDocumento\": \"DNI\",\n  \"numeroDocumento\": \"12345678\",\n  \"nombreCompleto\": \"Cliente de Prueba\",\n  \"telefono\": \"999999999\",\n  \"correo\": \"cliente@example.com\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenCajero}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Consultar cliente local",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/clientes/DNI/12345678",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "clientes",
+                    "DNI",
+                    "12345678"
+                  ]
+                },
+                "description": "",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenCajero}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Comprobantes",
+          "description": "Los PDF generados son simulaciones académicas sin valor tributario.",
+          "item": [
+            {
+              "name": "Comprobante - Boleta sin datos",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"tipoComprobante\": \"BOLETA\",\n  \"modalidad\": \"SIN_DATOS\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/comprobantes/datos-cliente/validar",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "comprobantes",
+                    "datos-cliente",
+                    "validar"
+                  ]
+                },
+                "description": "Prueba local, sin integración con RENIEC/SUNAT. Los documentos de demostración son ficticios.",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenCajero}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Comprobante - Datos manuales",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"tipoComprobante\": \"BOLETA\",\n  \"modalidad\": \"MANUAL\",\n  \"nombreCompleto\": \"Cliente Manual\",\n  \"telefono\": \"987654321\",\n  \"correo\": \"\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/comprobantes/datos-cliente/validar",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "comprobantes",
+                    "datos-cliente",
+                    "validar"
+                  ]
+                },
+                "description": "Prueba local, sin integración con RENIEC/SUNAT. Los documentos de demostración son ficticios.",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenCajero}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Comprobante - Autocompletar DNI de prueba",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"tipoComprobante\": \"BOLETA\",\n  \"modalidad\": \"DNI\",\n  \"tipoDocumento\": \"DNI\",\n  \"numeroDocumento\": \"12345678\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/comprobantes/datos-cliente/validar",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "comprobantes",
+                    "datos-cliente",
+                    "validar"
+                  ]
+                },
+                "description": "Prueba local, sin integración con RENIEC/SUNAT. Los documentos de demostración son ficticios.",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenCajero}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Comprobante - Autocompletar RUC de prueba",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"tipoComprobante\": \"FACTURA\",\n  \"modalidad\": \"RUC\",\n  \"tipoDocumento\": \"RUC\",\n  \"numeroDocumento\": \"20123456789\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/comprobantes/datos-cliente/validar",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "comprobantes",
+                    "datos-cliente",
+                    "validar"
+                  ]
+                },
+                "description": "Prueba local, sin integración con RENIEC/SUNAT. Los documentos de demostración son ficticios.",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenCajero}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Comprobante - Descargar PDF académico",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"idPedido\": 1,\n  \"tipoComprobante\": \"BOLETA\",\n  \"modalidad\": \"SIN_DATOS\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/comprobantes/demostracion/pdf",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "comprobantes",
+                    "demostracion",
+                    "pdf"
+                  ]
+                },
+                "description": "Devuelve un PDF de demostración marcado SIN VALOR TRIBUTARIO. Requiere un pedido existente y no consulta SUNAT ni envía WhatsApp.",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenCajero}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Comprobante - Emitir a SUNAT Beta (Boleta/Factura)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenCajero}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"idPedido\": 1,\n  \"idPago\": 1,\n  \"tipoComprobante\": \"BOLETA\",\n  \"modalidad\": \"DNI\",\n  \"tipoDocumento\": \"DNI\",\n  \"numeroDocumento\": \"12345678\",\n  \"nombreCompleto\": \"JUAN PEREZ LOPEZ\",\n  \"direccion\": \"AV. REVOLUCION 123 - LIMA\",\n  \"correo\": \"cliente@gmail.com\",\n  \"telefono\": \"987654321\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/comprobantes/emitir",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "comprobantes",
+                    "emitir"
+                  ]
+                },
+                "description": "Genera XML UBL 2.1, firma digital, envía a SUNAT Beta (RUC 20000000001 / MODDATOS), recibe CDR aprobado y genera código QR oficial."
+              }
+            },
+            {
+              "name": "Comprobante - Descargar Ticket PDF 80mm con QR",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenCajero}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/comprobantes/1/pdf",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "comprobantes",
+                    "1",
+                    "pdf"
+                  ]
+                },
+                "description": "Devuelve el PDF formateado para tiquetera térmica de 80mm con desglose tributario, QR oficial y estado de SUNAT."
+              }
+            },
+            {
+              "name": "Comprobante - Descargar XML UBL 2.1 Oficial",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tokenCajero}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/comprobantes/1/xml",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "comprobantes",
+                    "1",
+                    "xml"
+                  ]
+                },
+                "description": "Devuelve el XML firmado bajo el estándar UBL 2.1 aprobado por SUNAT."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Tickets y mensajería",
+          "description": "El adaptador de WhatsApp requiere credenciales y configuración externa.",
+          "item": [
+            {
+              "name": "Crear ticket WhatsApp (requiere configuración)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/tickets/whatsapp",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "tickets",
+                    "whatsapp"
+                  ]
+                },
+                "description": "Sin variables válidas WHATSAPP_API_URL/WHATSAPP_ACCESS_TOKEN el estado quedará PENDIENTE_CONFIGURACION.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"idPedido\": 1,\n  \"telefono\": \"51999999999\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenCajero}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Mozo",
+      "description": "Mesas, catálogo de venta y pedidos. Inicia sesión con MOZ001 y usa tokenMozo.",
+      "item": [
+        {
+          "name": "Acceso",
+          "description": "Login de demostración. Después de enviar el login, el test guarda automáticamente el token correspondiente.",
+          "item": [
+            {
+              "name": "Iniciar sesión como mozo (MOZ001)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/autenticacion/iniciar-sesion",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "autenticacion",
+                    "iniciar-sesion"
+                  ]
+                },
+                "description": "Credenciales locales de demostración: MOZ001 / 1234. Guarda tokenMozo y también token por compatibilidad.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"codigoTrabajador\": \"MOZ001\",\n  \"clave\": \"1234\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "if (pm.response.code === 200) {",
+                      "  const data = pm.response.json();",
+                      "  if (data.token) { pm.collectionVariables.set(\"tokenMozo\", data.token); pm.collectionVariables.set(\"token\", data.token); }",
+                      "  if (data.usuario && data.usuario.id) pm.collectionVariables.set(\"idUsuarioAutenticado\", String(data.usuario.id));",
+                      "}"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Mesas",
+          "description": "Alta, edición y estado de las mesas; no deshabilitar mesas con pedidos abiertos.",
+          "item": [
+            {
+              "name": "Listar mesas",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/mesas",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "mesas"
+                  ]
+                },
+                "description": "Requiere token con rol autorizado.",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenMozo}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Unir mesas para una familia",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenMozo}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "url": "{{baseUrl}}/api/v1/mesas/grupos",
+                "description": "Requiere dos mesas distintas libres. Se marca una mesa principal para abrir la comanda.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"idsMesas\": [\n    \"{{idMesaGrupo1}}\",\n    \"{{idMesaGrupo2}}\"\n  ],\n  \"idMesaPrincipal\": \"{{idMesaGrupo1}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "if (pm.response.code === 201 || pm.response.code === 200) {",
+                      " const data=pm.response.json();",
+                      " if (data.idGrupoMesas !== undefined) pm.collectionVariables.set('idGrupoMesas',String(data.idGrupoMesas));",
+                      " pm.test('Grupo creado',function(){pm.expect(data.idGrupoMesas).to.exist;});",
+                      "} else { pm.test('Crear grupo respondió 201/200',function(){pm.expect(pm.response.code).to.be.oneOf([200,201]);}); }"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Consultar grupo de mesas",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenMozo}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "url": "{{baseUrl}}/api/v1/mesas/grupos/{{idGrupoMesas}}"
+              }
+            },
+            {
+              "name": "Finalizar grupo sin pedidos activos",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenMozo}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "url": "{{baseUrl}}/api/v1/mesas/grupos/{{idGrupoMesas}}/finalizar",
+                "description": "Solo se permite si no existen pedidos activos en las mesas del grupo."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Menú general",
+          "description": "Consultas generales del catálogo y de las áreas de venta.",
+          "item": [
+            {
+              "name": "Listar categorías",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/menu/categorias",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "menu",
+                    "categorias"
+                  ]
+                },
+                "description": "",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenMozo}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Listar productos",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/menu/productos",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "menu",
+                    "productos"
+                  ]
+                },
+                "description": "",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenMozo}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Catálogo - Listar las cuatro áreas",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/menu/areas",
+                "description": "Devuelve POLLERIA, MENU, HELADERIA y JUGUERIA.",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenMozo}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Pollería",
+          "description": "Consultas del catálogo de la pollería. Primero consulta categorías y después productos.",
+          "item": [
+            {
+              "name": "Catálogo - Categorías POLLERIA",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/menu/categorias?area=POLLERIA",
+                "description": "Filtra las categorías del área seleccionada.",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenMozo}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Catálogo - Productos POLLERIA",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/menu/productos?area=POLLERIA&soloDisponibles=false",
+                "description": "Lista productos activos del área.",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenMozo}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Menú del día",
+          "description": "Consultas del catálogo de la sección Menú.",
+          "item": [
+            {
+              "name": "Catálogo - Categorías MENU",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/menu/categorias?area=MENU",
+                "description": "Filtra las categorías del área seleccionada.",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenMozo}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Catálogo - Productos MENU",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/menu/productos?area=MENU&soloDisponibles=false",
+                "description": "Lista productos activos del área.",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenMozo}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Heladería",
+          "description": "Consultas del catálogo de heladería.",
+          "item": [
+            {
+              "name": "Catálogo - Categorías HELADERIA",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/menu/categorias?area=HELADERIA",
+                "description": "Filtra las categorías del área seleccionada.",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenMozo}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Catálogo - Productos HELADERIA",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/menu/productos?area=HELADERIA&soloDisponibles=false",
+                "description": "Lista productos activos del área.",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenMozo}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Juguería",
+          "description": "Consultas del catálogo de juguería.",
+          "item": [
+            {
+              "name": "Catálogo - Categorías JUGUERIA",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/menu/categorias?area=JUGUERIA",
+                "description": "Filtra las categorías del área seleccionada.",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenMozo}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Catálogo - Productos JUGUERIA",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/menu/productos?area=JUGUERIA&soloDisponibles=false",
+                "description": "Lista productos activos del área.",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenMozo}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Opciones de productos",
+          "description": "Configura grupos de opciones de tamaño, sabor y agregados para un producto.",
+          "item": [
+            {
+              "name": "Validar opciones seleccionadas del producto",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/menu/productos/{{idProductoNuevo}}/opciones/validar",
+                "description": "El backend devuelve el recargo calculado y rechaza opciones de otro producto o fuera de los límites.",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenMozo}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "[\n  {\n    \"idOpcion\": \"{{idOpcionGrande}}\",\n    \"cantidad\": 1\n  }\n]",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Consultar opciones disponibles del producto",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/menu/productos/{{idProductoNuevo}}/opciones",
+                "description": "Obtiene grupos y opciones para mostrarlos en la pantalla del mozo.",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenMozo}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "if (pm.response.code === 200) {",
+                      "  const grupos = pm.response.json();",
+                      "  const tamanos = grupos.find(g => g.nombre.toLowerCase() === 'tamaño');",
+                      "  const grande = tamanos?.opciones?.find(o => o.nombre.toLowerCase() === 'grande');",
+                      "  if (grande) pm.collectionVariables.set('idOpcionGrande', grande.idOpcion);",
+                      "}"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Pedidos",
+          "description": "Flujo del mozo: crear, consultar y enviar la comanda a cocina. Usa una mesa y productos que existan.",
+          "item": [
+            {
+              "name": "Crear pedido de ejemplo",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/pedidos",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "pedidos"
+                  ]
+                },
+                "description": "Los IDs deben existir. Si la estructura/IDs no coinciden con los datos inicializados, consultar catálogo y ajustar el body. Si el backend responde 200/201, guarda automáticamente idPedido y el primer idDetalle para seguir probando.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"idMesa\": 1,\n  \"detalles\": [\n    {\n      \"idProducto\": 1,\n      \"cantidad\": 1,\n      \"observaciones\": \"Sin crema\"\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenMozo}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "if (pm.response.code === 200 || pm.response.code === 201) {",
+                      "  const data = pm.response.json();",
+                      "  if (data.idPedido !== undefined && data.idPedido !== null) pm.collectionVariables.set(\"idPedido\", String(data.idPedido));",
+                      "  if (Array.isArray(data.detalles) && data.detalles.length > 0 && data.detalles[0].idDetallePedido !== undefined) pm.collectionVariables.set(\"idDetalle\", String(data.detalles[0].idDetallePedido));",
+                      "}"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Crear pedido con opción de tamaño",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/pedidos",
+                "description": "Antes ejecuta la configuración de opciones, consulta las opciones disponibles para cargar idOpcionGrande y reemplaza idMesa por una mesa libre. Si el backend responde 200/201, guarda automáticamente idPedido y el primer idDetalle para seguir probando.",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenMozo}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"idMesa\": 1,\n  \"observaciones\": \"Pedido de prueba con variante\",\n  \"detalles\": [\n    {\n      \"idProducto\": \"{{idProductoNuevo}}\",\n      \"cantidad\": 1,\n      \"observaciones\": \"Sin hielo\",\n      \"opciones\": [\n        {\n          \"idOpcion\": \"{{idOpcionGrande}}\",\n          \"cantidad\": 1\n        }\n      ]\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "if (pm.response.code === 200 || pm.response.code === 201) {",
+                      "  const data = pm.response.json();",
+                      "  if (data.idPedido !== undefined && data.idPedido !== null) pm.collectionVariables.set(\"idPedido\", String(data.idPedido));",
+                      "  if (Array.isArray(data.detalles) && data.detalles.length > 0 && data.detalles[0].idDetallePedido !== undefined) pm.collectionVariables.set(\"idDetalle\", String(data.detalles[0].idDetallePedido));",
+                      "}"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Consultar pedido",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/pedidos/{{idPedido}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "pedidos",
+                    "{{idPedido}}"
+                  ]
+                },
+                "description": "Definir idPedido con el ID recibido al crear la comanda.",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenMozo}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Enviar pedido a cocina",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/pedidos/{{idPedido}}/enviar-cocina",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "pedidos",
+                    "{{idPedido}}",
+                    "enviar-cocina"
+                  ]
+                },
+                "description": "Definir idPedido y verificar los mensajes de orders-service/kitchen-service.",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenMozo}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Cocina",
+      "description": "Monitor de cocina y cambios de estado de preparación. Inicia sesión con COC001 y usa tokenCocinero.",
+      "item": [
+        {
+          "name": "Acceso",
+          "description": "Login de demostración. Después de enviar el login, el test guarda automáticamente el token correspondiente.",
+          "item": [
+            {
+              "name": "Iniciar sesión como cocinero (COC001)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/autenticacion/iniciar-sesion",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "autenticacion",
+                    "iniciar-sesion"
+                  ]
+                },
+                "description": "Login local académico para el rol COCINERO. Guarda el token en la variable tokenCocinero.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"codigoTrabajador\": \"COC001\",\n  \"clave\": \"1234\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "if (pm.response.code === 200) {",
+                      "  const data = pm.response.json();",
+                      "  if (data.token) pm.collectionVariables.set(\"tokenCocinero\", data.token);",
+                      "  if (data.usuario && data.usuario.id) pm.collectionVariables.set(\"idUsuarioAutenticado\", String(data.usuario.id));",
+                      "}"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Comandas y preparación",
+          "description": "Consultas del KDS y cambio del estado de los detalles por cocina.",
+          "item": [
+            {
+              "name": "Listar comandas con alertas de demora",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/cocina/pedidos",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "cocina",
+                    "pedidos"
+                  ]
+                },
+                "description": "",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenCocinero}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Marcar detalle como listo",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/pedidos/detalle/{{idDetalle}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "pedidos",
+                    "detalle",
+                    "{{idDetalle}}"
+                  ]
+                },
+                "description": "Definir idDetalle de un detalle existente; revisar DTO admitido antes de ejecutar.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"estado\": \"LISTO\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenCocinero}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Sistema",
+      "description": "Comprobaciones generales de disponibilidad del backend y de la puerta de enlace.",
+      "item": [
+        {
+          "name": "Salud y diagnóstico",
+          "description": "Verifica la disponibilidad de la puerta de enlace.",
+          "item": [
+            {
+              "name": "Comprobar salud del gateway",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/salud",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "salud"
+                  ]
+                },
+                "description": "",
+                "auth": {
+                  "type": "noauth"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

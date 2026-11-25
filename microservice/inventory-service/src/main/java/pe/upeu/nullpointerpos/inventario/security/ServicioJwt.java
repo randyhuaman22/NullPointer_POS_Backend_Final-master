@@ -1,0 +1,3 @@
+package pe.upeu.nullpointerpos.inventario.security;
+import io.jsonwebtoken.Claims;import io.jsonwebtoken.Jwts;import io.jsonwebtoken.security.Keys;import org.springframework.beans.factory.annotation.Value;import org.springframework.stereotype.Service;import javax.crypto.SecretKey;import java.nio.charset.StandardCharsets;
+@Service public class ServicioJwt {private final SecretKey key;public ServicioJwt(@Value("${app.jwt.secreto}")String s){byte[]b=s.getBytes(StandardCharsets.UTF_8);if(b.length<32)throw new IllegalArgumentException("SECRETO_JWT demasiado corto.");key=Keys.hmacShaKeyFor(b);}public Claims leer(String t){return Jwts.parser().verifyWith(key).build().parseSignedClaims(t).getPayload();}}

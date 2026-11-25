@@ -1,0 +1,16 @@
+server:
+  port: ${PUERTO_SERVIDOR:8761}
+spring:
+  application:
+    name: servidor-descubrimiento
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+  instance:
+    hostname: ${EUREKA_HOSTNAME:localhost}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

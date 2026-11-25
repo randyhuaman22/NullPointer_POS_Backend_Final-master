@@ -1,0 +1,61 @@
+server:
+  port: ${PUERTO_SERVIDOR:8080}
+spring:
+  application:
+    name: puerta-enlace-api
+  config:
+    import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}
+  cloud:
+    config:
+      fail-fast: false
+    gateway:
+      globalcors:
+        add-to-simple-url-handler-mapping: true
+        cors-configurations:
+          '[/**]':
+            allowed-origin-patterns: ${ORIGENES_CORS_PERMITIDOS:*}
+            allowed-methods: "*"
+            allowed-headers: "*"
+            allow-credentials: false
+      routes:
+        - id: ruta-autenticacion
+          uri: lb://servicio-autenticacion
+          predicates:
+            - Path=/api/v1/autenticacion/**,/api/v1/administracion/**
+        - id: ruta-menu
+          uri: lb://servicio-productos
+          predicates:
+            - Path=/api/v1/menu/**
+        - id: ruta-pedidos-y-mesas
+          uri: lb://servicio-pedidos
+          predicates:
+            - Path=/api/v1/mesas/**,/api/v1/pedidos/**,/api/v1/cocina/**,/api/v1/reportes/**,/api/v1/auditoria/**
+        - id: ruta-caja-clientes-tickets
+          uri: lb://servicio-caja
+          predicates:
+            - Path=/api/v1/caja/**,/api/v1/clientes/**,/api/v1/tickets/**,/api/v1/comprobantes/**
+        - id: ruta-inventario
+          uri: lb://servicio-inventario
+          predicates:
+            - Path=/api/v1/inventario/**
+        - id: ruta-websocket-cocina
+          uri: lb:ws://servicio-cocina
+          predicates:
+            - Path=/ws/cocina,/ws/cocina/**
+app:
+  jwt:
+    secreto: ${SECRETO_JWT:NullPointerPOS-Local-Secret-For-Demo-Only-2026!ChangeBeforeProduction}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_DEFAULT_ZONE:http://localhost:8761/eureka/}
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true

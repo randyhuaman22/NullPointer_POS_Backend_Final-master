@@ -1,0 +1,29 @@
+NULLPOINTER POS - COLECCION POSTMAN UNICA
+
+IMPORTACION
+1. En Postman, pulsa Import.
+2. Importa solamente NullPointer_POS.postman_collection.json.
+3. Opcionalmente importa NullPointer_POS_Local.postman_environment.json y selecciona ese entorno.
+4. El gateway local es http://localhost:8080 (variable baseUrl).
+
+ESTRUCTURA FIJA DE CUATRO NIVELES
+Nivel 1: NullPointer POS (colección).
+Nivel 2: Administrador, Cajero, Mozo, Cocina y Sistema.
+Nivel 3: el módulo (Usuarios, Categorías, Productos, Mesas, Pedidos, Caja, etc.).
+Nivel 4: las solicitudes HTTP concretas.
+No importes una colección adicional de Sprint 1; el archivo separado fue retirado.
+
+TOKENS POR ROL
+Ejecuta primero Acceso > Iniciar sesión dentro de la carpeta del rol. Las pruebas guardan el JWT automáticamente. Las cuentas de demostración son ADM001, CAJ001, MOZ001 y COC001; la clave para las cuatro es 1234.
+
+FLUJO DE ADMINISTRACIÓN
+1. Administrador > Usuarios: Crear usuario, Consultar usuario por ID, Editar usuario creado, Dar de baja usuario y Reactivar usuario.
+2. Administrador > Categorías: crear, consultar, editar, desactivar y restaurar. La baja es lógica; una categoría con productos o subcategorías activos no se puede desactivar.
+3. Administrador > Productos: crear, consultar, editar, desactivar y restaurar.
+4. Mozo > Mesas: seleccionar dos o más mesas libres y unirlas, dejando una como mesa principal. La primera comanda se abre desde la principal. Para finalizar manualmente el grupo no debe haber pedidos activos.
+
+FLUJO DE CAJA
+Cajero: iniciar sesión > abrir caja > consultar resumen del pedido > registrar pago > cerrar caja. Los ejemplos de DNI/RUC son ficticios; el PDF es una simulación académica sin valor tributario. WhatsApp requiere credenciales externas.
+
+CATALOGO
+La migración agrega productos de demostración en Pollería, Menú, Heladería y Juguería. Los precios son referenciales; modifícalos desde el administrador antes de usar el sistema con clientes.

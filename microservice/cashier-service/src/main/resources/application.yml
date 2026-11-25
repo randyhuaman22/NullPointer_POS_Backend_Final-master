@@ -1,0 +1,83 @@
+server:
+  port: ${PUERTO_SERVIDOR:8085}
+  forward-headers-strategy: framework
+spring:
+  application:
+    name: servicio-caja
+  config:
+    import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}
+  cloud:
+    config:
+      fail-fast: false
+  datasource:
+    url: ${URL_BASE_DATOS:jdbc:postgresql://localhost:5432/bd_caja}
+    username: ${USUARIO_BASE_DATOS:nullpointer}
+    password: ${CLAVE_BASE_DATOS:nullpointer_local_2026}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: ${MAX_CONEXIONES_BD:10}
+      minimum-idle: ${MIN_CONEXIONES_BD:2}
+      connection-timeout: 30000
+      pool-name: NullPointerCajaPool
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    validate-on-migrate: true
+  rabbitmq:
+    host: ${ANFITRION_RABBITMQ:localhost}
+    port: ${PUERTO_RABBITMQ:5672}
+    username: ${USUARIO_RABBITMQ:guest}
+    password: ${CLAVE_RABBITMQ:guest}
+    publisher-confirm-type: correlated
+    publisher-returns: true
+    template:
+      mandatory: true
+  jackson:
+    default-property-inclusion: non_null
+app:
+  sunat:
+    certificado-ruta: ${SUNAT_CERTIFICADO_RUTA:}
+    clave-certificado: ${SUNAT_CLAVE_CERTIFICADO:}
+    certificado-alias: ${SUNAT_CERTIFICADO_ALIAS:}
+    ruc-emisor: ${SUNAT_RUC_EMISOR:20000000001}
+    razon-social: ${SUNAT_RAZON_SOCIAL:POLLERIA Y PARRILLAS WENDY'S FOOD S.A.C.}
+  jwt:
+    secreto: ${SECRETO_JWT:NullPointerPOS-Local-Secret-For-Demo-Only-2026!ChangeBeforeProduction}
+    vigencia-minutos: ${VIGENCIA_JWT_MINUTOS:480}
+  cors:
+    origenes-permitidos: ${ORIGENES_CORS_PERMITIDOS:*}
+  servicios:
+    pedidos-url: ${ORDERS_SERVICE_URL:http://localhost:8082}
+  whatsapp:
+    endpoint: ${WHATSAPP_API_URL:}
+    token: ${WHATSAPP_ACCESS_TOKEN:}
+  greenapi:
+    media-url: ${GREENAPI_MEDIA_URL:https://media.green-api.com}
+    id-instance: ${GREENAPI_ID_INSTANCE:}
+    api-token: ${GREENAPI_API_TOKEN:}
+  consulta-doc:
+    proveedor: ${CONSULTA_DOC_PROVEEDOR:APISPERU}
+    base-url: ${CONSULTA_DOC_URL:}
+    token: ${CONSULTA_DOC_TOKEN:}
+    timeout-ms: ${CONSULTA_DOC_TIMEOUT_MS:5000}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+logging:
+  level:
+    org.springframework.security: INFO
+    pe.upeu.nullpointerpos: INFO
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_DEFAULT_ZONE:http://localhost:8761/eureka/}
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
