@@ -1,0 +1,41 @@
+NULLPOINTER POS - INICIO MANUAL DESDE POWERSHELL
+
+REQUISITOS
+- Docker Desktop instalado y abierto.
+- Internet durante la primera construcción para descargar imágenes y dependencias.
+- No hay inicializador .bat; todos los comandos se escriben manualmente.
+
+ENCENDER POR PRIMERA VEZ O DESPUÉS DE CAMBIAR CÓDIGO
+1. Abre PowerShell en la carpeta donde están pom.xml y docker-compose.yml.
+2. Comprueba la configuración:
+   docker compose config
+3. Limita las compilaciones simultáneas para reducir fallos de descargas:
+   $env:COMPOSE_PARALLEL_LIMIT=1
+4. Construye las imágenes:
+   docker compose build
+5. Enciende los servicios:
+   docker compose up -d
+6. Comprueba el estado:
+   docker compose ps -a
+
+ENCENDIDOS POSTERIORES SI NO CAMBIASTE CÓDIGO
+   docker compose up -d
+
+COMANDOS UTILES
+- Ver registros: docker compose logs -f
+- Ver un servicio: docker compose logs -f servicio-caja
+- Reiniciar: docker compose restart
+- Detener sin borrar datos: docker compose down
+No uses `docker compose down -v` si quieres conservar los volúmenes de PostgreSQL y RabbitMQ.
+
+POSTMAN
+Importa solamente postman/NullPointer_POS.postman_collection.json.
+Opcionalmente importa postman/NullPointer_POS_Local.postman_environment.json.
+La colección está organizada en cuatro niveles: NullPointer POS > rol > módulo > endpoint HTTP.
+
+CORRECCIÓN DE MIGRACIONES (noviembre 2026)
+- Se conserva intacta la migración histórica V6 del catálogo para que coincida con la base de datos existente.
+- El catálogo ampliado se ejecuta como una nueva migración V7 y omite productos cuyo nombre ya existe en la misma área.
+- Las mesas unidas usan el esquema histórico de V4 y sus tablas/columnas compatibles.
+- El proyecto Compose usa el nombre original para reutilizar los volúmenes de PostgreSQL y RabbitMQ.
+- No borres volúmenes ni uses `docker compose down -v`: contienen los datos persistentes.
