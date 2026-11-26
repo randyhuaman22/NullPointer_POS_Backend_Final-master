@@ -126,7 +126,15 @@ public class ServicioSunatBeta {
         String hashCpe = "";
         if (!config.getCertificadoRuta().isBlank() || xml.contains("SignatureValue")) {
             try {
-                if (!xml.contains("SignatureValue")) xml = XmlSunat.firmar(xml, config);
+                boolean xmlCorregido = false;
+                if (xml.contains("<cbc:AddressLine>")) {
+                    xml = xml.replace("<cbc:AddressLine>", "<cac:AddressLine>")
+                             .replace("</cbc:AddressLine>", "</cac:AddressLine>");
+                    xmlCorregido = true;
+                }
+                if (!xml.contains("SignatureValue") || xmlCorregido) {
+                    xml = XmlSunat.firmar(xml, config);
+                }
                 hashCpe = XmlSunat.texto(XmlSunat.leer(xml.getBytes(StandardCharsets.UTF_8)), "DigestValue");
                 estadoSunat = "PENDIENTE_ENVIO";
                 byte[] zipBytes = empaquetarZip(config.getRucEmisor() + "-" + codigoTipoCpe + "-" + numeroCompleto + ".xml", xml);
@@ -187,7 +195,7 @@ public class ServicioSunatBeta {
             "                <cbc:RegistrationName>" + XmlSunat.escapar(razonSocialEmisor) + "</cbc:RegistrationName>\n" +
             "                <cac:RegistrationAddress>\n" +
             "                    <cbc:ID>" + XmlSunat.escapar(ubigeo) + "</cbc:ID>\n" +
-            "                    <cbc:AddressLine><cbc:Line>" + XmlSunat.escapar(direccionEmisor) + "</cbc:Line></cbc:AddressLine>\n" +
+            "                    <cac:AddressLine><cbc:Line>" + XmlSunat.escapar(direccionEmisor) + "</cbc:Line></cac:AddressLine>\n" +
             "                </cac:RegistrationAddress>\n" +
             "            </cac:PartyLegalEntity>\n" +
             "        </cac:Party>\n" +
