@@ -5,3 +5,5 @@ target/
 .vscode/
 *.iml
 .DS_Store
+certificados/
+*.p12
